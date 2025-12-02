@@ -90,7 +90,10 @@ export default function Home() {
         setShowTerminal(false)
         setResponseHistory([])
         setCommandHistory([])
+        setBootSequenceDone(false)
+        setCurrentMessageIndex(0)
         setInputValue("")
+        setFirstPrompt(true)
         return
       }
       if (cleanedCommand=="clear"){
@@ -106,6 +109,7 @@ export default function Home() {
         setInputValue("")
         setBootSequenceDone(false)
         setCurrentMessageIndex(0)
+        setFirstPrompt(true)
         return
       }
       if (cleanedCommand=="linkedin"){
@@ -141,7 +145,7 @@ export default function Home() {
           {renderedMessages.map((message,index)=>{
             if (message!="Done!"){
               return(
-                <p key={index} className="terminal pl-2 pt-0 text-lg text-gray-900 font-semibold">{message}</p>
+                <p key={index} className="terminal pl-2 pt-0 text-lg text-teal-900 font-bold">{message}</p>
               ) 
             }
             else {
