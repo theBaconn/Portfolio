@@ -4,13 +4,13 @@ import { useAsyncError } from "react-router-dom"
 
 export default function Home() {
   const [commandHistory, setCommandHistory] = useState([])
+  const [firstPrompt, setFirstPrompt] = useState(true)
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0)
   const [renderedMessages, setRenderedMessages] = useState([])
   const [responseHistory, setResponseHistory] = useState([])
   const [bootSequenceDone, setBootSequenceDone] = useState(false)
-  const [initialScreen, setInitialScreen] = useState(false)
   const [inputValue, setInputValue] = useState("")
-  const [showTerminal, setShowTerminal] = useState(true)
+  const [showTerminal, setShowTerminal] = useState(false)
 
   const terminalref = useRef(null)
   const newlineref = useRef(null)
@@ -44,11 +44,6 @@ export default function Home() {
     'resume': 
       "Opening Ethan's Resume..."
   }
-  // Initial welcome screen
-  useEffect(()=>{
-    if (initialScreen){
-    }
-  },[initialScreen])
   // Checks if boot sequence is done
   useEffect(()=>{
     if (renderedMessages.length == terminalMessages.length) {
@@ -62,7 +57,7 @@ export default function Home() {
 
   // Timer for boot sequence messages
   useEffect(() => {
-    if (initialScreen){
+    if (!showTerminal){
       return
     }
     if (currentMessageIndex < terminalMessages.length){
@@ -72,10 +67,10 @@ export default function Home() {
         terminalMessages[currentMessageIndex]
       ]);
       setCurrentMessageIndex(prevIndex =>prevIndex+ 1);
-      }, 2000);
+      }, 1500);
       return () => clearInterval(timer);
     }
-  },[currentMessageIndex,terminalMessages,initialScreen])
+  },[currentMessageIndex,terminalMessages])
 
   // Autoscrolls in terminal
   useEffect(()=>{
@@ -101,6 +96,7 @@ export default function Home() {
       if (cleanedCommand=="clear"){
         setCommandHistory([])
         setResponseHistory([])
+        setFirstPrompt(true)
         setInputValue("")
         return
       }
@@ -124,16 +120,14 @@ export default function Home() {
     else {
       setResponseHistory(prev=>[...prev,`Error: Command "${command}" not found. Type 'help' for available commands.`])
     }
+    if (firstPrompt){
+      setFirstPrompt(false)
+    }
     setInputValue("")
   }
 
   return (
     <div className='min-h-screen bg-teal-600 bg-cover overflow-hidden'>
-      {initialScreen && (
-        <div className="min-h-screen bg-gray-600 bg-cover overflow-hidden">
-          <p className="text-blue-300/70 text-center">Welcome to Ethan Snead's Portfolio</p>
-        </div>
-      )}
       {showTerminal && (
         <div className="fixed top-[10px] bottom-[42px] flex-grow flex-col left-0 right-0 max-w-7xl p-8 pb-10 rounded-xl mx-auto z-50">
         {/* Terminal Header */}
@@ -183,12 +177,13 @@ export default function Home() {
                 autoFocus
                 value={inputValue}
                 onChange={(e)=>setInputValue(e.target.value)}
+                placeholder={`${firstPrompt ? "Type 'help' for available commands" : ""}`}
                 onKeyDown={(e) => {
                   if (e.key == "Enter"){
                     handleCommand(inputValue)
                   }
                 }}
-                className="terminal ml-1 text-md text-gray-200 bg-transparent border-none focus:outline-none max-w-full">
+                className="terminal ml-1 text-md text-gray-200 bg-transparent border-none focus:outline-none max-w-full flex-grow">
               </input>
             </div>
             </>
@@ -197,7 +192,17 @@ export default function Home() {
         </div>
       )}
     {/* Taskbar */}
-      <div aria-label="Quick Access" onClick={()=>setShowTerminal(prev=>!prev)} className="fixed flex items-center justify-center left-0 right-0 mx-auto rounded-full hover:cursor-pointer shadow-xl w-20 bottom-0 h-10 mb-1 bg-gray-700/80 z-40">
+      {!showTerminal && (
+        <div>
+          <span className="animate-pulse intro absolute text-center text-7xl  text-gray-700/80 left-0 right-0 bottom-1/2">Ethan Snead's <br/>Portfolio</span>
+          <div className={`fixed flex items-center justify-center left-0 right-0 mx-auto rounded-full  w-40 bottom-0 h-6 mb-16 bg-gray-700 z-40`}>
+            <span className="pb-1 text-center text-white text-sm font-semibold">Click to open Terminal</span>
+          </div>
+          <div className="h-4 w-6 bg-gray-700 transform rotate-45 origin-bottom-right rounded-sm bottom-0 left-0 right-6 mx-auto mb-14 absolute "></div>
+        </div>
+        
+      )}
+      <div aria-label="Quick Access" onClick={()=>setShowTerminal(prev=>!prev)} className={` ${showTerminal ? "null" : "animate-bounce"} fixed flex items-center justify-center left-0 right-0 mx-auto rounded-full hover:cursor-pointer shadow-xl w-20 bottom-0 h-10 mb-1 bg-gray-700/80 z-40`}>
         <Menu className="h-6 w-6 stroke-gray-200"></Menu>
       </div>
     </div>
