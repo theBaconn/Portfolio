@@ -8,9 +8,9 @@ export default function Home() {
   const [renderedMessages, setRenderedMessages] = useState([])
   const [responseHistory, setResponseHistory] = useState([])
   const [bootSequenceDone, setBootSequenceDone] = useState(false)
-  const [initialScreen, setInitialScreen] = useState(true)
+  const [initialScreen, setInitialScreen] = useState(false)
   const [inputValue, setInputValue] = useState("")
-  const [showTerminal, setShowTerminal] = useState(false)
+  const [showTerminal, setShowTerminal] = useState(true)
 
   const terminalref = useRef(null)
   const newlineref = useRef(null)
@@ -21,13 +21,13 @@ export default function Home() {
   const terminalMessages = ["Initializing...","Communicating with server...","Fetching Ethan's Data...","Finalizing...","Done!"]
   const commandsMap = {
     'about': 
-      "Hi! I'm Ethan Snead and I'm a Senior at LSU pursuing a bachelor's in Computer Science with a focus in Cybersecurity!\nI am currently working as a Student Security Analyst at LSU's TigerSOC.\nTo view my resume and socials, enter one of the following: 'linkedin', 'resume', 'github' or use the quick access menu below!"
+      `--------------------------------------------------------------------------------------------------------------------\nHi! I'm Ethan Snead and I'm a Senior at LSU pursuing a bachelor's in Computer Science with a focus in Cybersecurity!\n\nI am currently working as a Student Security Analyst at LSU's TigerSOC.\n\nTo view my resume and socials, enter one of the following: 'linkedin', 'resume', 'github' or use the quick access menu below!\n--------------------------------------------------------------------------------------------------------------------`
     ,
     'clear':
       " "
     ,
     'help':
-      `Try one of the following commands: 'about', 'clear', 'help', 'linkedin', 'github', 'resume', 'reboot', 'quit'}`
+      `Available commands: 'about', 'clear', 'help', 'linkedin', 'github', 'resume', 'reboot', 'quit'}`
     ,
     'quit': 
       " "
