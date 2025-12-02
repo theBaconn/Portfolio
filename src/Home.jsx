@@ -8,10 +8,12 @@ export default function Home() {
   const [renderedMessages, setRenderedMessages] = useState([])
   const [responseHistory, setResponseHistory] = useState([])
   const [bootSequenceDone, setBootSequenceDone] = useState(false)
+  const [initialScreen, setInitialScreen] = useState(true)
   const [inputValue, setInputValue] = useState("")
   const [showTerminal, setShowTerminal] = useState(false)
 
   const terminalref = useRef(null)
+  const newlineref = useRef(null)
   const github = "https://github.com/theBaconn"
   const linkedin = "https://www.linkedin.com/in/ethan-snead-12964a278/"
   const resume = "/resume1.pdf"
@@ -25,7 +27,7 @@ export default function Home() {
       " "
     ,
     'help':
-      `Try one of the following commands: 'about', 'clear', 'help', 'linkedin', 'github', 'resume', 'quit'}`
+      `Try one of the following commands: 'about', 'clear', 'help', 'linkedin', 'github', 'resume', 'reboot', 'quit'}`
     ,
     'quit': 
       " "
@@ -36,9 +38,17 @@ export default function Home() {
     'github': 
       `Ethan Snead's GitHub: ${github}` 
     ,
+    'reboot':
+      `Rebooting...`
+    ,
     'resume': 
       "Opening Ethan's Resume..."
   }
+  // Initial welcome screen
+  useEffect(()=>{
+    if (initialScreen){
+    }
+  },[initialScreen])
   // Checks if boot sequence is done
   useEffect(()=>{
     if (renderedMessages.length == terminalMessages.length) {
@@ -52,6 +62,9 @@ export default function Home() {
 
   // Timer for boot sequence messages
   useEffect(() => {
+    if (initialScreen){
+      return
+    }
     if (currentMessageIndex < terminalMessages.length){
       const timer = setInterval(() => {
         setRenderedMessages(prevMessages => [
@@ -62,7 +75,7 @@ export default function Home() {
       }, 2000);
       return () => clearInterval(timer);
     }
-  },[currentMessageIndex,terminalMessages])
+  },[currentMessageIndex,terminalMessages,initialScreen])
 
   // Autoscrolls in terminal
   useEffect(()=>{
@@ -81,6 +94,7 @@ export default function Home() {
       if (cleanedCommand=="quit"){
         setShowTerminal(false)
         setResponseHistory([])
+        setCommandHistory([])
         setInputValue("")
         return
       }
@@ -88,6 +102,14 @@ export default function Home() {
         setCommandHistory([])
         setResponseHistory([])
         setInputValue("")
+        return
+      }
+      if (cleanedCommand=="reboot"){
+        setCommandHistory([])
+        setResponseHistory([])
+        setInputValue("")
+        setBootSequenceDone(false)
+        setCurrentMessageIndex(0)
         return
       }
       if (cleanedCommand=="linkedin"){
@@ -107,7 +129,12 @@ export default function Home() {
 
   return (
     <div className='min-h-screen bg-teal-600 bg-cover overflow-hidden'>
-      {!showTerminal && (
+      {initialScreen && (
+        <div className="min-h-screen bg-gray-600 bg-cover overflow-hidden">
+          <p className="text-blue-300/70 text-center">Welcome to Ethan Snead's Portfolio</p>
+        </div>
+      )}
+      {showTerminal && (
         <div className="fixed top-[10px] bottom-[42px] flex-grow flex-col left-0 right-0 max-w-7xl p-8 pb-10 rounded-xl mx-auto z-50">
         {/* Terminal Header */}
           <div className="flex w-full h-8 p-2 gap-1 rounded-t-xl bg-gray-900/50 backdrop-blur-md">
@@ -116,7 +143,7 @@ export default function Home() {
             <span className="inline-block w-4 h-4 bg-gray-200/70 rounded-full"></span>
           </div>
         {/* Terminal Body */}
-          <div ref={terminalref} className="flex-grow w-full p-1 rounded-xl shadow-xl h-full overflow-y-auto rounded-t-none bg-gray-500/30 backdrop-blur-md">
+          <div ref={terminalref} onClick={()=>newlineref.current.focus()} className="flex-grow w-full p-1 rounded-xl shadow-xl h-full overflow-y-auto rounded-t-none bg-gray-500/30 backdrop-blur-md">
           {renderedMessages.map((message,index)=>{
             if (message!="Done!"){
               return(
@@ -151,6 +178,7 @@ export default function Home() {
             <div className="flex items-center">
               <p className="terminal pl-2 pt-0 text-md text-teal-900 font-bold">{messageHead} </p>
               <input
+                ref={newlineref}
                 type="text"
                 autoFocus
                 value={inputValue}
@@ -169,7 +197,7 @@ export default function Home() {
         </div>
       )}
     {/* Taskbar */}
-      <div aria-label="Quick Access" className="fixed flex items-center justify-center left-0 right-0 mx-auto rounded-full hover:cursor-pointer shadow-xl w-20 bottom-0 h-10 mb-1 bg-gray-700/80 z-40">
+      <div aria-label="Quick Access" onClick={()=>setShowTerminal(prev=>!prev)} className="fixed flex items-center justify-center left-0 right-0 mx-auto rounded-full hover:cursor-pointer shadow-xl w-20 bottom-0 h-10 mb-1 bg-gray-700/80 z-40">
         <Menu className="h-6 w-6 stroke-gray-200"></Menu>
       </div>
     </div>
